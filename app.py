@@ -1,12 +1,16 @@
-from flask import Flask, request, render_template, redirect, url_for, flash, send_file
+from flask import Flask, request, render_template, redirect, url_for, flash
 import os
 import pandas as pd
 import random
 import time
 import matplotlib.pyplot as plt
+from dotenv import load_dotenv
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key"
+
+load_dotenv()
+app.secret_key = os.environ.get('SECRET_KEY', 'default_secret_key')
+
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'xlsx'}
 
@@ -19,33 +23,22 @@ def allowed_file(filename):
 # Processa o arquivo Excel e realiza análises
 def process_excel(file_path):
     try:
-        # Lê o Excel
         data = pd.read_excel(file_path)
-        
-        # Limpando e processando os dados
         data = data.iloc[1:]  # Ignorar cabeçalhos não relevantes
         data.columns = ["Concurso", "Data", "Bola 1", "Bola 2", "Bola 3", "Bola 4", "Bola 5", "Bola 6"]
 
-        # Garantindo que os valores são numéricos e limpando valores inválidos
         for col in ["Concurso", "Bola 1", "Bola 2", "Bola 3", "Bola 4", "Bola 5", "Bola 6"]:
             data[col] = pd.to_numeric(data[col], errors='coerce')  
-
-        # Remove linhas com valores ausentes (NaN)
         data = data.dropna()
 
-        # Determinar o último concurso e o próximo
         last_contest = int(data["Concurso"].max())
         next_contest = last_contest + 1
         
-        # Frequência dos números sorteados
-        all_balls = pd.concat([data["Bola 1"], data["Bola 2"], data["Bola 3"],
-                               data["Bola 4"], data["Bola 5"], data["Bola 6"]])
+        all_balls = pd.concat([data["Bola 1"], data["Bola 2"], data["Bola 3"], data["Bola 4"], data["Bola 5"], data["Bola 6"]])
         frequency = all_balls.value_counts().sort_index()
-        
-        # Jogo mais provável (6 números mais frequentes)
+
         most_frequent = [int(num) for num in frequency.sort_values(ascending=False).head(6).index.tolist()]
         
-        # Outros jogos prováveis (usando aleatoriedade baseada em frequência)
         other_games = []
         for _ in range(3):  
             game = [int(num) for num in random.sample(frequency.index.tolist(), 6)]
@@ -81,14 +74,9 @@ def upload_file():
         filename = file.filename
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
-
-        # Simula processamento longo
         time.sleep(12)
-
-        # Processar o Excel
         results = process_excel(file_path)
         if results:
-            # Salva os dados da análise
             app.config['ANALYSIS_RESULTS'] = results
             return render_template('results.html', results=results)
         else:
@@ -105,7 +93,6 @@ def analysis():
         flash('Nenhuma análise disponível. Faça o upload de um arquivo primeiro!')
         return redirect('/')
     
-    # Gráfico de Frequência dos Números
     frequency = results['frequency']
     plt.figure(figsize=(10, 6))
     plt.bar(frequency.keys(), frequency.values(), color='green')
@@ -115,7 +102,6 @@ def analysis():
     plt.savefig('static/frequency_plot.png')
     plt.close()
 
-    # Gráfico de Distribuição por Década
     decade_bins = [1, 11, 21, 31, 41, 51, 61]
     labels = ['1-10', '11-20', '21-30', '31-40', '41-50', '51-60']
     numbers = list(frequency.keys())
