@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <title>Resultados da Análise</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Resultados da Análise</h1>
+        
+        <!-- Jogo Mais Provável -->
+        <div class="result-section">
+            <h2>Jogo Mais Provável</h2>
+            <p>Estes são os números mais prováveis com base na análise:</p>
+            <div class="game-box">
+                {% for number in results['most_frequent'] %}
+                    <span class="number">{{ number }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Outros Jogos Prováveis -->
+        <div class="result-section">
+            <h2>Outros Jogos Prováveis</h2>
+            <p>Combinamos outras opções baseadas em padrões históricos:</p>
+            <div class="games-list">
+                {% for game in results['other_games'] %}
+                    <div class="game">
+                        <h3>Jogo {{ loop.index }}</h3>
+                        <div class="game-box">
+                            {% for number in game %}
+                                <span class="number">{{ number }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <a href="/" class="back-link">Voltar para o Upload</a>
+    </div>
+</body>
+</html>

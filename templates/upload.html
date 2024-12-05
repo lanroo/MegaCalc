@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <!-- DotLottie Player -->
+    <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+    <title>Upload de Arquivo</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload de Arquivo Excel</h1>
+        <p>Faça o upload do arquivo com os resultados da Mega Sena para calcular os números mais prováveis.</p>
+        
+        <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data" onsubmit="showLoadingAnimation()">
+            <input type="file" name="file" accept=".xlsx" required>
+            <button type="submit">Enviar</button>
+        </form>
+
+        <div id="loading-animation" style="display: none;">
+            <dotlottie-player 
+                src="https://lottie.host/f30ac6f2-be2a-4c92-b7e8-7b16d274194a/0VAaenascR.lottie" 
+                background="transparent" 
+                speed="1" 
+                style="width: 300px; height: 300px; margin: 20px auto;" 
+                loop 
+                autoplay>
+            </dotlottie-player>
+            <p id="loading-message" style="margin-top: 20px; font-size: 16px; color: #4CAF50;">Processando os cálculos... Por favor, aguarde!</p>
+        </div>
+    </div>
+
+    <script>
+        const messages = [
+            "Carregando base de dados histórica...",
+            "Analisando a frequência de cada número...",
+            "Calculando probabilidades baseadas em eventos passados...",
+            "Realizando análise combinatória para possíveis jogos...",
+            "Gerando gráficos de distribuição de números...",
+            "Analisando padrões estatísticos...",
+            "Identificando sequências mais prováveis...",
+            "Simulando milhões de combinações possíveis...",
+            "Ajustando probabilidades com base em distribuições gaussianas...",
+            "Finalizando a análise estatística..."
+        ];
+
+        let currentMessageIndex = 0;
+
+        function showLoadingAnimation() {
+            document.getElementById('upload-form').style.display = 'none';
+            document.getElementById('loading-animation').style.display = 'block'; 
+
+            showNextMessage();
+        }
+
+        function showNextMessage() {
+            if (currentMessageIndex < messages.length) {
+                const messageContainer = document.getElementById('loading-message');
+                messageContainer.textContent = messages[currentMessageIndex];
+                currentMessageIndex++;
+                setTimeout(showNextMessage, 2000); 
+            }
+        }
+    </script>
+</body>
+</html>
