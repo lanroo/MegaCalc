@@ -10,6 +10,12 @@
     <div class="container">
         <h1>Resultados da Análise</h1>
         
+        <!-- Informações do Concurso -->
+        <div class="contest-info">
+            <p><strong>Último Concurso:</strong> {{ results['last_contest'] }}</p>
+            <p><strong>Próximo Concurso:</strong> {{ results['next_contest'] }}</p>
+        </div>
+
         <!-- Jogo Mais Provável -->
         <div class="result-section">
             <h2>Jogo Mais Provável</h2>

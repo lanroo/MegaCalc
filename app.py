@@ -17,13 +17,23 @@ def allowed_file(filename):
 # Processa o arquivo Excel e realiza análises
 def process_excel(file_path):
     try:
+        # Lê o Excel
         data = pd.read_excel(file_path)
         
         # Limpando e processando os dados
-        data = data.iloc[1:]  # Ignorar cabeçalhos não relevantes
+        data = data.iloc[1:] 
         data.columns = ["Concurso", "Data", "Bola 1", "Bola 2", "Bola 3", "Bola 4", "Bola 5", "Bola 6"]
-        for col in ["Bola 1", "Bola 2", "Bola 3", "Bola 4", "Bola 5", "Bola 6"]:
-            data[col] = pd.to_numeric(data[col], errors='coerce')
+
+        # Garantindo que os valores são numéricos e limpando valores inválidos
+        for col in ["Concurso", "Bola 1", "Bola 2", "Bola 3", "Bola 4", "Bola 5", "Bola 6"]:
+            data[col] = pd.to_numeric(data[col], errors='coerce') 
+
+        # Remove linhas com valores ausentes (NaN)
+        data = data.dropna()
+
+        # Determinar o último concurso e o próximo
+        last_contest = int(data["Concurso"].max())
+        next_contest = last_contest + 1
         
         # Frequência dos números sorteados
         all_balls = pd.concat([data["Bola 1"], data["Bola 2"], data["Bola 3"],
@@ -35,14 +45,16 @@ def process_excel(file_path):
         
         # Outros jogos prováveis (usando aleatoriedade baseada em frequência)
         other_games = []
-        for _ in range(3): 
+        for _ in range(3):  
             game = [int(num) for num in random.sample(frequency.index.tolist(), 6)]
             other_games.append(game)
         
         return {
             "frequency": frequency.to_dict(),
             "most_frequent": most_frequent,
-            "other_games": other_games
+            "other_games": other_games,
+            "last_contest": last_contest,
+            "next_contest": next_contest
         }
     except Exception as e:
         print(f"Erro ao processar o arquivo: {e}")
@@ -69,7 +81,6 @@ def upload_file():
         file.save(file_path)
         time.sleep(12)
 
-        # Processar o Excel
         results = process_excel(file_path)
         if results:
             return render_template('results.html', results=results)
