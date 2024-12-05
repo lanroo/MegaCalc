@@ -105,7 +105,7 @@ def analysis():
         flash('Nenhuma análise disponível. Faça o upload de um arquivo primeiro!')
         return redirect('/')
     
-    # Gerar gráficos com matplotlib
+    # Gráfico de Frequência dos Números
     frequency = results['frequency']
     plt.figure(figsize=(10, 6))
     plt.bar(frequency.keys(), frequency.values(), color='green')
@@ -115,7 +115,27 @@ def analysis():
     plt.savefig('static/frequency_plot.png')
     plt.close()
 
-    return render_template('analysis.html', results=results, plot_url='/static/frequency_plot.png')
+    # Gráfico de Distribuição por Década
+    decade_bins = [1, 11, 21, 31, 41, 51, 61]
+    labels = ['1-10', '11-20', '21-30', '31-40', '41-50', '51-60']
+    numbers = list(frequency.keys())
+    bins = pd.cut(numbers, bins=decade_bins, labels=labels, include_lowest=True)
+    decade_counts = bins.value_counts()
+
+    plt.figure(figsize=(8, 5))
+    plt.bar(labels, decade_counts, color='blue')
+    plt.title('Distribuição por Década')
+    plt.xlabel('Faixas de Números')
+    plt.ylabel('Frequência')
+    plt.savefig('static/decade_plot.png')
+    plt.close()
+
+    return render_template(
+        'analysis.html',
+        results=results,
+        plot_url='/static/frequency_plot.png',
+        decade_plot_url='/static/decade_plot.png'
+    )
 
 if __name__ == "__main__":
     if not os.path.exists(UPLOAD_FOLDER):

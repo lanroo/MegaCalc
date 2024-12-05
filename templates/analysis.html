@@ -9,9 +9,50 @@
 <body>
     <div class="container">
         <h1>Análise Completa</h1>
-        <img src="{{ plot_url }}" alt="Frequência dos Números" class="analysis-plot">
-        <p><strong>Jogo Mais Frequente:</strong> {{ results['most_frequent'] }}</p>
-        <a href="/" class="back-link">Voltar para o Upload</a>
+        
+        <!-- Frequência dos Números -->
+        <div class="analysis-section">
+            <h2>Frequência dos Números</h2>
+            <p>Este gráfico mostra quantas vezes cada número foi sorteado historicamente:</p>
+            <img src="{{ plot_url }}" alt="Frequência dos Números" class="analysis-plot">
+        </div>
+
+        <!-- Números Mais Frequentes -->
+        <div class="analysis-section">
+            <h2>Números Mais Frequentes</h2>
+            <p>Os números abaixo são os mais frequentes na história da Mega Sena:</p>
+            <div class="game-box">
+                {% for number in results['most_frequent'] %}
+                    <span class="number">{{ number }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Distribuição por Década -->
+        <div class="analysis-section">
+            <h2>Distribuição por Década</h2>
+            <p>Abaixo, a distribuição dos números sorteados em faixas de 10 números:</p>
+            <img src="{{ decade_plot_url }}" alt="Distribuição por Década" class="analysis-plot">
+        </div>
+
+        <!-- Probabilidade de Combinações -->
+        <div class="analysis-section">
+            <h2>Probabilidades de Combinações</h2>
+            <p>As combinações mais prováveis com base nos cálculos realizados:</p>
+            <ul class="probabilities-list">
+                {% for game in results['other_games'] %}
+                    <li>
+                        <strong>Jogo {{ loop.index }}:</strong>
+                        {{ game | join(', ') }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Botões -->
+        <div class="buttons">
+            <a href="/" class="back-link">Voltar para o Upload</a>
+        </div>
     </div>
 </body>
 </html>
