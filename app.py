@@ -1,8 +1,9 @@
-from flask import Flask, request, render_template, redirect, url_for, flash
+from flask import Flask, request, render_template, redirect, url_for, flash, send_file
 import os
 import pandas as pd
 import random
-import time 
+import time
+import matplotlib.pyplot as plt
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
@@ -11,6 +12,7 @@ ALLOWED_EXTENSIONS = {'xlsx'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# Verifica se o arquivo é válido
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -21,12 +23,12 @@ def process_excel(file_path):
         data = pd.read_excel(file_path)
         
         # Limpando e processando os dados
-        data = data.iloc[1:] 
+        data = data.iloc[1:]  # Ignorar cabeçalhos não relevantes
         data.columns = ["Concurso", "Data", "Bola 1", "Bola 2", "Bola 3", "Bola 4", "Bola 5", "Bola 6"]
 
         # Garantindo que os valores são numéricos e limpando valores inválidos
         for col in ["Concurso", "Bola 1", "Bola 2", "Bola 3", "Bola 4", "Bola 5", "Bola 6"]:
-            data[col] = pd.to_numeric(data[col], errors='coerce') 
+            data[col] = pd.to_numeric(data[col], errors='coerce')  
 
         # Remove linhas com valores ausentes (NaN)
         data = data.dropna()
@@ -79,10 +81,15 @@ def upload_file():
         filename = file.filename
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
+
+        # Simula processamento longo
         time.sleep(12)
 
+        # Processar o Excel
         results = process_excel(file_path)
         if results:
+            # Salva os dados da análise
+            app.config['ANALYSIS_RESULTS'] = results
             return render_template('results.html', results=results)
         else:
             flash('Erro ao processar o arquivo!')
@@ -90,6 +97,25 @@ def upload_file():
     else:
         flash('Formato de arquivo inválido! Use um arquivo .xlsx.')
         return redirect(request.url)
+
+@app.route('/analysis')
+def analysis():
+    results = app.config.get('ANALYSIS_RESULTS')
+    if not results:
+        flash('Nenhuma análise disponível. Faça o upload de um arquivo primeiro!')
+        return redirect('/')
+    
+    # Gerar gráficos com matplotlib
+    frequency = results['frequency']
+    plt.figure(figsize=(10, 6))
+    plt.bar(frequency.keys(), frequency.values(), color='green')
+    plt.title('Frequência dos Números Sorteados')
+    plt.xlabel('Números')
+    plt.ylabel('Frequência')
+    plt.savefig('static/frequency_plot.png')
+    plt.close()
+
+    return render_template('analysis.html', results=results, plot_url='/static/frequency_plot.png')
 
 if __name__ == "__main__":
     if not os.path.exists(UPLOAD_FOLDER):

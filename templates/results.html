@@ -33,19 +33,22 @@
             <p>Combinamos outras opções baseadas em padrões históricos:</p>
             <div class="games-list">
                 {% for game in results['other_games'] %}
-                    <div class="game">
-                        <h3>Jogo {{ loop.index }}</h3>
-                        <div class="game-box">
-                            {% for number in game %}
-                                <span class="number">{{ number }}</span>
-                            {% endfor %}
-                        </div>
+                <div class="game">
+                    <h3>Jogo {{ loop.index }}</h3>
+                    <div class="game-box">
+                        {% for number in game %}
+                            <span class="number">{{ number }}</span>
+                        {% endfor %}
                     </div>
-                {% endfor %}
-            </div>
+                </div>
+            {% endfor %}
         </div>
-
-        <a href="/" class="back-link">Voltar para o Upload</a>
     </div>
+
+    <div class="buttons">
+        <a href="/" class="back-link">Voltar para o Upload</a>
+        <a href="/analysis" class="analysis-link">Ver Análise Completa</a>
+    </div>
+</div>
 </body>
 </html>
